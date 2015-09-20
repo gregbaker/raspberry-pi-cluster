@@ -20,3 +20,9 @@ Why not?
 In my case, as a teaching tool: it's all well and good to read in the docs that HDFS and YARN will heal themselves if a node fails. It's another to see it actually happen. When I learned that the ops staff were not thrilled about the "go into the server room and unplug things" approach, a collection of Pis was the answer.
 
 With everything nice and tidy in Fabric, I can fix any configuration problems that arise with abuse of the cluster.
+
+## TODO
+
+Since the USB drive gets better read-write speed than the SD card, I would like to try moving the Hadoop installation there.
+
+It might be nice to have a SquashFS filesystem for the basic installation, and a AuFS/UnionFS for everything on top of that. That would make re-imaging the nodes super easy.
