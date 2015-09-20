@@ -15,8 +15,12 @@ This is the parts list from my cluster with prices (CDN$ in August/September 201
 * [4-40 threaded rod and nuts](http://www.pacificfasteners.com/), $3
 * [3/4" spacers](http://www.rpelectronics.com/60341-c-insulated-spacer-6-hole-3-4-pkg-100.html), $10
 * [Four-outlet power bar](http://www.homehardware.ca/en/rec/index.htm/Plumbing-Electrical/Electrical/Extension-Cords/Power-Bars/Power-Bars/4-Plug-Slimline-Strip-Outlet/_/N-2pqfZ67l/Ne-67n/Ntk-All_EN/R-I3665705?Ntt=4+outlest), $13.
-* [2.5" corner brace](http://www.homedepot.ca/product/2-1-2-inch-zinc-corner-brace-4pk/821665), $2.
+* [2.5" corner brace](http://www.homedepot.ca/product/2-1-2-inch-zinc-corner-brace-4pk/821665) (to give a mounting point for the rod+spacer+pi assembly), $2.
 * lamp extension cord cut to length with a new plug, donated.
 * velcro tape, zip ties, ≈$5.
 
 Total: $682.
+
+In the end, my cluster looks like this:
+
+![cluster assembled and running](/images/running2.jpg?raw=true)
