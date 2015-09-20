@@ -1,4 +1,4 @@
-= Shopping List
+# Shopping List
 
 This is the parts list from my cluster with prices (CDN$ in August/September 2015, before taxes and shipping):
 
