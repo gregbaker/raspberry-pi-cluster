@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+ <property>
+  <name>dfs.replication</name>
+  <value>3</value>
+ </property>
+<property>
+  <name>dfs.permissions.enabled</name>
+  <value>false</value>
+</property>
+<property>
+  <name>dfs.permissions</name>
+  <value>false</value>
+</property>
+
+<property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:///hadoop/datanode</value>
+</property>
+<property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:///hadoop/namenode</value>
+</property>
+<property>
+    <name>dfs.namenode.secondary.http-address</name>
+    <value>master.local:50090</value>
+</property>
+<property>
+    <name>dfs.blocksize</name>
+    <value>5242880</value> <!-- 5MB -->
+</property>
+<property>
+ <name>heartbeat.recheck.interval</name>
+ <value>30</value> <!-- https://stackoverflow.com/questions/6019167/how-to-get-datanode-timeout -->
+</property>
+</configuration>

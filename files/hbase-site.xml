@@ -1,0 +1,19 @@
+<configuration>
+  <property>
+    <name>hbase.zookeeper.quorum</name>
+    <value>%(slaves_list)s</value>
+  </property>
+  <property>
+    <name>hbase.rootdir</name>
+    <value>hdfs://master.local:54310/hbase</value>
+  </property>
+  <property>
+    <name>hbase.cluster.distributed</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.property.dataDir</name>
+    <value>/hadoop/zookeeper</value>
+  </property>
+</configuration>
+
