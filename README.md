@@ -10,6 +10,9 @@ In this repo, you'll find a [parts list](PARTS.md) and [setup instructions](SETU
 
 As for using the cluster to do things, I'll defer to my [assignment that uses the cluster](https://courses.cs.sfu.ca/2015fa-cmpt-732-g1/pages/Assignment5A) for details.
 
+The setup I used is almost exactly the same as [Nigel Pond's Raspberry Pi cluster](http://www.nigelpond.com/2015/06/27/how-to-build-a-7-node-raspberry-pi-cluster/). As I was planning, I kept deciding to do things differently, but then circling back and doing exactly the same thing he did (including buying the same case, which I didn't realize until I clicked back just now). Many thanks to him for the inspiration!
+
+
 ## Why?
 
 Why not?
