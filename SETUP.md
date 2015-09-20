@@ -2,7 +2,7 @@
 
 You'll need to hook up to a monitor and keyboard/mouse on one node just to get Raspbian set up so you can connect remotely in the future.
 
-Download [Raspbian ](https://www.raspbian.org/) and transfer the image to your SD Card. Like this:
+Download [Raspbian](https://www.raspbian.org/) and transfer the image to your SD Card. Like this:
 
 ```
 sudo dd bs=4M if=2015-05-05-raspbian-wheezy.img of=/dev/sdX
