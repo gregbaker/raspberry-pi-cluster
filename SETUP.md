@@ -1,3 +1,7 @@
+# Cluster Setup and Configuration
+
+The steps here should get a cluster up configured.
+
 ## Raspbian Setup
 
 You'll need to hook up to a monitor and keyboard/mouse on one node just to get Raspbian set up so you can connect remotely in the future.
