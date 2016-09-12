@@ -9,10 +9,10 @@ You'll need to hook up to a monitor and keyboard/mouse on one node just to get R
 Download [Raspbian](https://www.raspbian.org/) and transfer the image to your SD Card. Like this:
 
 ```
-sudo dd bs=4M if=2015-05-05-raspbian-wheezy.img of=/dev/sdX
+sudo dd bs=4M if=2016-05-27-raspbian-jessie-lite.img of=/dev/sdX
 ```
 
-Put the SD in the Pi and start it up. At the setup menu:
+Put the SD in the Pi and start it up. Log in with the default username and password (pi:raspberry). Open the config tool ```sudo raspi-config``` and at the setup menu:
 
 * Enable SSH.
 * Enlarge the disk (although this could be done later on each node if you have heterogeneous storage).
@@ -60,7 +60,7 @@ sudo dd bs=4M if=basic_setup.img of=/dev/sdX
 Format the USB drive that will store the Hadoop data on this node:
 
 ```
-mkfs.ext4 -L HADOOP /dev/sdY1
+sudo mkfs.ext4 -L HADOOP /dev/sdY1
 ```
 
 Insert the SD card, USB drive, and start up the node. Set its hostname to be distinct. Nodes should be called ```master``` and ```hadoop1```, ```hadoop2```, ```hadoop3```, ...
@@ -98,3 +98,27 @@ fab --set=passwd="secretpassword" change_password
 ```
 
 From here, the cluster should be good to go. (You may need to reboot or do an ```ntpdate``` on each node to get the clocks right.)
+
+
+## Running The Cluster
+
+Before you start the Hadoop tools for the first time, the HDFS must be formatted. SSH to the master node (```ssh pi@master.local```) and:
+
+```
+dfs-format
+```
+
+Then to start YARN and HDFS:
+
+```
+start-all
+```
+
+To shut everything down:
+
+```
+stop-all # stop Hadoop
+halt-all # shutdown the nodes
+```
+
+

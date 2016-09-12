@@ -20,7 +20,7 @@ big-file:
 	hdfs dfs -D dfs.replication=4 -copyFromLocal /tmp/bigfile ${DEST}/big-file-1
 	hdfs dfs -D dfs.replication=4 -cp ${DEST}/big-file-1 ${DEST}/big-file-2
 
-hdfs-files: wordcount euler big-file
+hdfs-files: wordcount euler
 	hdfs dfs -mkdir -p ${DEST}
 	-hdfs dfs -rm -r ${DEST}/wordcount ${DEST}/euler-input
 	hdfs dfs -copyFromLocal ${STAGING}/wordcount ${STAGING}/euler-input ${DEST}

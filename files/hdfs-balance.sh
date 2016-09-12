@@ -1,3 +1,3 @@
 #!/bin/sh
 
-hdfs balancer -threshold 2
+hdfs balancer -threshold 1

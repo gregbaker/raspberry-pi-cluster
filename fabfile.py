@@ -11,9 +11,9 @@ from crypt import crypt
 INSTALL_FILES = './temp_files'
 PUBKEY = os.path.join(os.environ['HOME'], '.ssh/id_rsa.pub')
 
-HADOOP_VERSION = '2.7.1'
-HBASE_VERSION = '1.1.2'
-SPARK_VERSION = '1.5.0'
+HADOOP_VERSION = '2.7.3'
+HBASE_VERSION = '1.2.2'
+SPARK_VERSION = '2.0.0'
 
 
 HADOOP_TARFILE = 'hadoop-%s.tar.gz' % (HADOOP_VERSION,)
@@ -28,7 +28,8 @@ SPARK_TARFILE = 'spark-%s-bin-hadoop2.6.tgz' % (SPARK_VERSION,)
 SPARK_APACHE_PATH = 'spark/spark-%s/%s' % (SPARK_VERSION, SPARK_TARFILE)
 SPARK_INSTALL = '/opt/spark-%s-bin-hadoop2.6' % (SPARK_VERSION,)
 
-SLAVES = ['hadoop%i.local' % (i) for i in range(1, 7)]
+NUM_SLAVES = 6
+SLAVES = ['hadoop%i.local' % (i) for i in range(1, NUM_SLAVES+1)]
 
 HOSTS = ['master.local'] + SLAVES
 if not env.hosts:
@@ -91,7 +92,7 @@ def clean_raspbian():
         gnome-themes-standard-data gnome-icon-theme galculator python3-picamera  python3-pifacedigital-scratch-handler \
         python3-serial python-picamera python-pifacedigitalio xpdf timidity sonic-pi python3-pifacedigitalio \
         python3-rpi.gpio python-pifacecommon python-rpi.gpio penguinspuzzle v4l-utils xdg-utils minecraft-pi libept1.4.12 \
-        smartsim luajit libapt-pkg-dev libtagcoll2-dev libxapian-dev python3-pifacecommon raspberrypi-artwork
+        smartsim luajit libapt-pkg-dev libtagcoll2-dev libxapian* python3-pifacecommon raspberrypi-artwork libudev0
         ''')
     sudo('apt-get -y autoremove')
     sudo('apt-get -y dist-upgrade')
@@ -110,7 +111,7 @@ def fetch_files():
     if not os.path.isfile(grrrr):
         local(cmd('wget --no-check-certificate http://raw.github.com/fs111/grrrr/master/grrr -O %s && chmod +x %s', grrrr, grrrr))
     _get_apache_file(HADOOP_APACHE_PATH, HADOOP_TARFILE)
-    _get_apache_file(HBASE_APACHE_PATH, HBASE_TARFILE)
+    #_get_apache_file(HBASE_APACHE_PATH, HBASE_TARFILE)
     _get_apache_file(SPARK_APACHE_PATH, SPARK_TARFILE)
 
 @task
@@ -147,7 +148,6 @@ def node_config():
     if not exists('/usr/bin/sshfs'):
         # handy to copy files onto the cluster
         sudo('apt-get -y install sshfs')
-        sudo('gpasswd -a pi fuse')
 
     put('files/interfaces', '/etc/network/interfaces', use_sudo=True)
     upload_template('files/hadoop.sh', '/etc/profile.d/hadoop.sh', context={'hadoop_home': HADOOP_INSTALL}, use_sudo=True)
@@ -156,16 +156,18 @@ def node_config():
     if exists('python_games'):
         run('rm -rf python_games')
 
-    # mount USB key (formatted "mkfs.ext4 -L HADOOP")
-    append('/etc/fstab', 'LABEL=HADOOP /hadoop ext4 defaults,relatime,noauto 0 0', use_sudo=True)
-    append('/etc/rc.local', 'mount /hadoop || true', use_sudo=True)
-    comment('/etc/rc.local', '^exit 0', use_sudo=True)
-    sudo('mkdir -p /hadoop')
-
     # Hadoop user
     if failure('egrep -q "^hadoop:" /etc/passwd'):
         sudo('adduser --system --shell=/bin/bash --home /home/hadoop --group --disabled-password hadoop')
         #sudo('chsh -s /bin/bash hadoop')
+
+    # mount USB key (formatted "mkfs.ext4 -L HADOOP")
+    append('/etc/fstab', 'LABEL=HADOOP /hadoop ext4 defaults,relatime,noauto 0 0', use_sudo=True)
+    append('/etc/rc.local', 'mount /hadoop || true', use_sudo=True)
+    append('/etc/rc.local', 'chown hadoop:hadoop /hadoop || true', use_sudo=True)
+    comment('/etc/rc.local', '^exit 0', use_sudo=True)
+    sudo('mkdir -p /hadoop')
+    sudo('chown hadoop:hadoop /hadoop')
 
     # SSH keys
     if not os.path.isfile(install_file('hadoop_id_rsa')):
@@ -182,6 +184,11 @@ def node_config():
     if not exists('/etc/hosts.template'):
         sudo('(grep -v 127.0.1.1 /etc/hosts | grep -v "# auto"; echo "HOST # auto") > /etc/hosts.template')
     put('files/update-hosts.sh', '/etc/network/if-up.d/update-hosts.sh', mode=0755, use_sudo=True)
+    
+    # Java
+    if not exists('/usr/bin/java'):
+        sudo('apt-get -y install openjdk-8-jre')
+
 
 
 ssh_keys_cache = None
