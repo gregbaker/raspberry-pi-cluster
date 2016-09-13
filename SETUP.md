@@ -114,6 +114,13 @@ Then to start YARN and HDFS:
 start-all
 ```
 
+To submit jobs with either YARN or Spark:
+
+```
+yarn jar wordcount.jar WordCount /user/pi/inputs /user/pi/output
+spark-submit --master yarn --deploy-mode cluster wordcount.py /user/pi/wordcount /user/pi/output
+```
+
 To shut everything down:
 
 ```

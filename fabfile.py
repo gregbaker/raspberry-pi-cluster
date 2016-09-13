@@ -158,6 +158,10 @@ def node_config():
     if failure('egrep -q "^hadoop:" /etc/passwd'):
         sudo('adduser --system --shell=/bin/bash --home /home/hadoop --group --disabled-password hadoop')
         #sudo('chsh -s /bin/bash hadoop')
+    
+    sudo('grep -q "^supergroup" /etc/group || groupadd supergroup')
+    sudo('usermod -a -G supergroup pi')
+    sudo('usermod -a -G supergroup hadoop')
 
     # mount USB key (formatted "mkfs.ext4 -L HADOOP")
     append('/etc/fstab', 'LABEL=HADOOP /hadoop ext4 defaults,relatime,noauto 0 0', use_sudo=True)

@@ -43,6 +43,7 @@
     <value>-Xmx200m</value>
  </property>
 
+<!--
  <property>
     <name>mapreduce.jobtracker.staging.root.dir</name>
     <value>/user</value>
@@ -55,5 +56,5 @@
     <name>yarn.app.mapreduce.am.staging-dir</name>
     <value>/user</value>
  </property>
-
+-->
 </configuration>
