@@ -1,0 +1,3 @@
+# disable host key checking within the cluster, in case IP addresses permute
+Host %(host_list)s
+  StrictHostKeyChecking no

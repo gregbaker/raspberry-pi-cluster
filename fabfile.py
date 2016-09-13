@@ -177,6 +177,7 @@ def node_config():
     if not os.path.isfile(install_file('hadoop_id_rsa')):
         local(cmd("ssh-keygen -t rsa -b 4096 -N '' -C 'cluster root key' -f %s", install_file('hadoop_id_rsa')))
     sudo('mkdir -p -m 0700 /home/hadoop/.ssh')
+    upload_template('files/ssh-config', '.ssh/config', context={'host_list': ' '.join(HOSTS)}, mode=0600)
     if not exists('/home/hadoop/.ssh/id_rsa'):
         put(install_file('hadoop_id_rsa.pub'), '/home/hadoop/.ssh/id_rsa.pub', mode=0644, use_sudo=True)
         put(install_file('hadoop_id_rsa.pub'), '/home/hadoop/.ssh/authorized_keys', mode=0644, use_sudo=True)
