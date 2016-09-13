@@ -107,9 +107,11 @@ def _get_apache_file(path, tarfile):
 
 @task
 def fetch_files():
+    if not os.path.isdir(INSTALL_FILES):
+        local(cmd('mkdir %s', INSTALL_FILES))
     grrrr = install_file('grrrr')
     if not os.path.isfile(grrrr):
-        local(cmd('wget --no-check-certificate http://raw.github.com/fs111/grrrr/master/grrr -O %s && chmod +x %s', grrrr, grrrr))
+        local(cmd('wget --no-check-certificate http://raw.githubusercontent.com/fs111/grrrr/master/grrr -O %s && chmod +x %s', grrrr, grrrr))
     _get_apache_file(HADOOP_APACHE_PATH, HADOOP_TARFILE)
     #_get_apache_file(HBASE_APACHE_PATH, HBASE_TARFILE)
     _get_apache_file(SPARK_APACHE_PATH, SPARK_TARFILE)
@@ -155,6 +157,8 @@ def node_config():
     upload_template('files/exec-all.sh', 'bin/exec-all', context={'slaves_list': ' '.join(SLAVES)}, mode=0755)
     if exists('python_games'):
         run('rm -rf python_games')
+    if not exists('/usr/share/pam-configs/systemd'):
+        sudo('apt-get -y install libpam-systemd')
 
     # Hadoop user
     if failure('egrep -q "^hadoop:" /etc/passwd'):
