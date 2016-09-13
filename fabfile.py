@@ -12,17 +12,12 @@ INSTALL_FILES = './temp_files'
 PUBKEY = os.path.join(os.environ['HOME'], '.ssh/id_rsa.pub')
 
 HADOOP_VERSION = '2.7.3'
-HBASE_VERSION = '1.2.2'
 SPARK_VERSION = '2.0.0'
 
 
 HADOOP_TARFILE = 'hadoop-%s.tar.gz' % (HADOOP_VERSION,)
 HADOOP_APACHE_PATH = '/hadoop/common/hadoop-%s/%s' % (HADOOP_VERSION, HADOOP_TARFILE)
 HADOOP_INSTALL = '/opt/hadoop-%s' % (HADOOP_VERSION,)
-
-HBASE_TARFILE = 'hbase-%s-bin.tar.gz' % (HBASE_VERSION,)
-HBASE_APACHE_PATH = '/hbase/%s/%s' % (HBASE_VERSION, HBASE_TARFILE)
-HBASE_INSTALL = '/opt/hbase-%s' % (HBASE_VERSION,)
 
 SPARK_TARFILE = 'spark-%s-bin-hadoop2.6.tgz' % (SPARK_VERSION,)
 SPARK_APACHE_PATH = 'spark/spark-%s/%s' % (SPARK_VERSION, SPARK_TARFILE)
@@ -113,7 +108,6 @@ def fetch_files():
     if not os.path.isfile(grrrr):
         local(cmd('wget --no-check-certificate http://raw.githubusercontent.com/fs111/grrrr/master/grrr -O %s && chmod +x %s', grrrr, grrrr))
     _get_apache_file(HADOOP_APACHE_PATH, HADOOP_TARFILE)
-    #_get_apache_file(HBASE_APACHE_PATH, HBASE_TARFILE)
     _get_apache_file(SPARK_APACHE_PATH, SPARK_TARFILE)
 
 @task
@@ -259,37 +253,6 @@ def install_hadoop():
     sudo('mkdir -p -m 0750 /hadoop/tmp && chown hadoop:hadoop /hadoop/tmp')
     sudo('mkdir -p /hadoop/namenode && chown hadoop:hadoop /hadoop/namenode')
     sudo('mkdir -p /hadoop/datanode && chown hadoop:hadoop /hadoop/datanode')
-
-
-'''
-@task
-def install_hbase():
-    if not exists(os.path.join(HBASE_INSTALL, 'bin/hbase')):
-        put(install_file(HBASE_TARFILE), os.path.join('/opt', HBASE_TARFILE), use_sudo=True)
-        with cd('/opt'):
-            sudo(cmd('tar zxf %s', HBASE_TARFILE))
-        sudo(cmd('rm %s', os.path.join('/opt', HBASE_TARFILE)))
-        sudo(cmd('chown -R hadoop.hadoop %s', HBASE_INSTALL))
-
-    sudo(cmd('ln -sf %s/etc/hadoop/slaves %s/conf/regionservers', HADOOP_INSTALL, HBASE_INSTALL))
-    upload_template('files/hbase-site.xml', '%s/conf/hbase-site.xml' % (HBASE_INSTALL,), context={'slaves_list': ','.join(SLAVES)}, use_sudo=True)
-
-    hbase_env = '%s/conf/hbase-env.sh' % (HBASE_INSTALL,)
-    uncomment(hbase_env, 'export JAVA_HOME=', use_sudo=True)
-    sed(hbase_env, '^export JAVA_HOME=.*', 'export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")', use_sudo=True)
-    uncomment(hbase_env, 'export HBASE_MANAGES_ZK=', use_sudo=True)
-    sed(hbase_env, '^export HBASE_MANAGES_ZK=.*', 'export HBASE_MANAGES_ZK=true', use_sudo=True)
-
-
-    sudo(cmd('mkdir -p %s/logs && chown -R hadoop.hadoop %s/logs', HBASE_INSTALL, HBASE_INSTALL))
-    sudo('mkdir -p /hadoop/zookeeper && chown -R hadoop.hadoop /hadoop/zookeeper')
-    #sudo su hadoop -c "/opt/hbase-1.1.2/bin/start-hbase.sh"
-
-    sudo(cmd('ln -sf %s /opt/hbase', HBASE_INSTALL))
-    for f in ['start-hbase.sh', 'stop-hbase.sh']:
-        put('files/' + f, 'bin/' + f.replace('.sh', ''), mode=0755)
-'''
-
 
 @task
 @hosts('master.local')
