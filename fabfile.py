@@ -4,24 +4,24 @@ from fabric.contrib.files import exists, contains, append, sed, upload_template,
 from fabric.utils import error, abort
 from fabric.context_managers import cd, settings, hide
 from fabric.decorators import hosts
-import os, StringIO
+import os, io
 from pipes import quote
 from crypt import crypt
 
 INSTALL_FILES = './temp_files'
 PUBKEY = os.path.join(os.environ['HOME'], '.ssh/id_rsa.pub')
 
-HADOOP_VERSION = '2.7.3'
-SPARK_VERSION = '2.0.0'
-
+HADOOP_VERSION = '2.8.1'
+SPARK_VERSION = '2.2.0'
+SPARK_HADOOP_COMPAT = '2.7'
 
 HADOOP_TARFILE = 'hadoop-%s.tar.gz' % (HADOOP_VERSION,)
 HADOOP_APACHE_PATH = '/hadoop/common/hadoop-%s/%s' % (HADOOP_VERSION, HADOOP_TARFILE)
 HADOOP_INSTALL = '/opt/hadoop-%s' % (HADOOP_VERSION,)
 
-SPARK_TARFILE = 'spark-%s-bin-hadoop2.6.tgz' % (SPARK_VERSION,)
+SPARK_TARFILE = 'spark-%s-bin-hadoop%s.tgz' % (SPARK_VERSION, SPARK_HADOOP_COMPAT)
 SPARK_APACHE_PATH = 'spark/spark-%s/%s' % (SPARK_VERSION, SPARK_TARFILE)
-SPARK_INSTALL = '/opt/spark-%s-bin-hadoop2.6' % (SPARK_VERSION,)
+SPARK_INSTALL = '/opt/spark-%s-bin-hadoop%s' % (SPARK_VERSION, SPARK_HADOOP_COMPAT)
 
 NUM_SLAVES = 6
 SLAVES = ['hadoop%i.local' % (i) for i in range(1, NUM_SLAVES+1)]
@@ -59,8 +59,8 @@ def auth_config():
 
     run('mkdir -p -m 0700 .ssh')
     if not exists('.ssh/id_rsa'):
-        put(install_file('id_rsa.pub'), '.ssh/id_rsa.pub', mode=0600)
-        put(install_file('id_rsa'), '.ssh/id_rsa', mode=0600)
+        put(install_file('id_rsa.pub'), '.ssh/id_rsa.pub', mode=0o0600)
+        put(install_file('id_rsa'), '.ssh/id_rsa', mode=0o0600)
 
     pubkey = open(install_file('id_rsa.pub'), 'r').read()
     if not contains('.ssh/authorized_keys', pubkey):
@@ -84,10 +84,10 @@ def clean_raspbian():
         desktop-file-utils omxplayer xserver-xorg ^lx samba-common smbclient cups-bsd cups-client cups-common \
         wolfram-engine cifs-utils samba-common \
         libsysfs2 gstreamer*  libident libboost* libsigc++* x2x fbset libfreetype6-dev libept-dev gtk2-engines gpicview \
-        gnome-themes-standard-data gnome-icon-theme galculator python3-picamera  python3-pifacedigital-scratch-handler \
-        python3-serial python-picamera python-pifacedigitalio xpdf timidity sonic-pi python3-pifacedigitalio \
-        python3-rpi.gpio python-pifacecommon python-rpi.gpio penguinspuzzle v4l-utils xdg-utils minecraft-pi libept1.4.12 \
-        smartsim luajit libapt-pkg-dev libtagcoll2-dev libxapian* python3-pifacecommon raspberrypi-artwork libudev0
+        gnome-themes-standard-data gnome-icon-theme galculator python3-picamera \
+        python3-serial python-picamera xpdf timidity sonic-pi \
+        python3-rpi.gpio python-rpi.gpio v4l-utils xdg-utils minecraft-pi libept* \
+        smartsim luajit libapt-pkg-dev libtagcoll2-dev libxapian*  raspberrypi-artwork libudev0
         ''')
     sudo('apt-get -y autoremove')
     sudo('apt-get -y dist-upgrade')
@@ -145,10 +145,10 @@ def node_config():
         # handy to copy files onto the cluster
         sudo('apt-get -y install sshfs')
 
-    put('files/interfaces', '/etc/network/interfaces', use_sudo=True)
+    #put('files/interfaces', '/etc/network/interfaces', use_sudo=True)
     upload_template('files/hadoop.sh', '/etc/profile.d/hadoop.sh', context={'hadoop_home': HADOOP_INSTALL}, use_sudo=True)
     run('mkdir -m 0755 -p ~/bin')
-    upload_template('files/exec-all.sh', 'bin/exec-all', context={'slaves_list': ' '.join(SLAVES)}, mode=0755)
+    upload_template('files/exec-all.sh', 'bin/exec-all', context={'slaves_list': ' '.join(SLAVES)}, mode=0o0755)
     if exists('python_games'):
         run('rm -rf python_games')
     if not exists('/usr/share/pam-configs/systemd'):
@@ -170,23 +170,24 @@ def node_config():
     comment('/etc/rc.local', '^exit 0', use_sudo=True)
     sudo('mkdir -p /hadoop')
     sudo('chown hadoop:hadoop /hadoop')
+    sudo('/etc/rc.local')
 
     # SSH keys
     if not os.path.isfile(install_file('hadoop_id_rsa')):
         local(cmd("ssh-keygen -t rsa -b 4096 -N '' -C 'cluster root key' -f %s", install_file('hadoop_id_rsa')))
     sudo('mkdir -p -m 0700 /home/hadoop/.ssh')
-    upload_template('files/ssh-config', '.ssh/config', context={'host_list': ' '.join(HOSTS)}, mode=0600)
+    upload_template('files/ssh-config', '.ssh/config', context={'host_list': ' '.join(HOSTS)}, mode=0o0600)
     if not exists('/home/hadoop/.ssh/id_rsa'):
-        put(install_file('hadoop_id_rsa.pub'), '/home/hadoop/.ssh/id_rsa.pub', mode=0644, use_sudo=True)
-        put(install_file('hadoop_id_rsa.pub'), '/home/hadoop/.ssh/authorized_keys', mode=0644, use_sudo=True)
-        put(install_file('hadoop_id_rsa'), '/home/hadoop/.ssh/id_rsa', mode=0600, use_sudo=True)
+        put(install_file('hadoop_id_rsa.pub'), '/home/hadoop/.ssh/id_rsa.pub', mode=0o0644, use_sudo=True)
+        put(install_file('hadoop_id_rsa.pub'), '/home/hadoop/.ssh/authorized_keys', mode=0o0644, use_sudo=True)
+        put(install_file('hadoop_id_rsa'), '/home/hadoop/.ssh/id_rsa', mode=0o0600, use_sudo=True)
 
     sudo('chown -R hadoop:hadoop /home/hadoop/.ssh')
 
     # /etc/hosts dynamic reconfig (needed by zookeeper)
     if not exists('/etc/hosts.template'):
         sudo('(grep -v 127.0.1.1 /etc/hosts | grep -v "# auto"; echo "HOST # auto") > /etc/hosts.template')
-    put('files/update-hosts.sh', '/etc/network/if-up.d/update-hosts.sh', mode=0755, use_sudo=True)
+    put('files/update-hosts.sh', '/etc/network/if-up.d/update-hosts.sh', mode=0o0755, use_sudo=True)
     
     # Java
     if not exists('/usr/bin/java'):
@@ -213,7 +214,7 @@ def collect_ssh_keys():
 @task
 def ssh_keyscan():
     ssh_keys = collect_ssh_keys()
-    keydata = StringIO.StringIO(ssh_keys)
+    keydata = io.StringIO(ssh_keys)
     put(keydata, '/home/hadoop/.ssh/known_hosts', use_sudo=True)
     sudo('chown hadoop.hadoop /home/hadoop/.ssh/known_hosts')
 
@@ -251,7 +252,7 @@ def install_hadoop():
 
     sudo(cmd('ln -sf %s /opt/hadoop', HADOOP_INSTALL))
     for f in ['start-all.sh', 'stop-all.sh', 'dfs-format.sh', 'clear-dfs.sh', 'nuke-dfs.sh', 'halt-all.sh', 'hdfs-balance.sh']:
-        put('files/' + f, 'bin/' + f.replace('.sh', ''), mode=0755)
+        put('files/' + f, 'bin/' + f.replace('.sh', ''), mode=0o0755)
 
     # HDFS directories
     sudo('mkdir -p -m 0750 /hadoop/tmp && chown hadoop:hadoop /hadoop/tmp')

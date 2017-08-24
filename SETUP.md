@@ -6,10 +6,10 @@ The steps here should get a cluster up configured.
 
 You'll need to hook up to a monitor and keyboard/mouse on one node just to get Raspbian set up so you can connect remotely in the future.
 
-Download [Raspbian](https://www.raspbian.org/) and transfer the image to your SD Card. Like this:
+[Download Raspbian Lite](https://www.raspberrypi.org/downloads/) and transfer the image to your SD Card. Like this:
 
 ```
-sudo dd bs=4M if=2016-05-27-raspbian-jessie-lite.img of=/dev/sdX
+sudo dd bs=4M if=2017-08-16-raspbian-stretch-lite.img of=/dev/sdX
 ```
 
 Put the SD in the Pi and start it up. Log in with the default username and password (pi:raspberry). Open the config tool ```sudo raspi-config``` and at the setup menu:
@@ -96,6 +96,7 @@ If you'd like to change the password for the pi@ accounts:
 ```
 fab --set=passwd="secretpassword" change_password
 ```
+
 
 From here, the cluster should be good to go. (You may need to reboot or do an ```ntpdate``` on each node to get the clocks right.)
 
