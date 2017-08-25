@@ -185,14 +185,13 @@ def node_config():
     sudo('chown -R hadoop:hadoop /home/hadoop/.ssh')
 
     # /etc/hosts dynamic reconfig (needed by zookeeper)
-    if not exists('/etc/hosts.template'):
-        sudo('(grep -v 127.0.1.1 /etc/hosts | grep -v "# auto"; echo "HOST # auto") > /etc/hosts.template')
-    put('files/update-hosts.sh', '/etc/network/if-up.d/update-hosts.sh', mode=0o0755, use_sudo=True)
+    #if not exists('/etc/hosts.template'):
+    #    sudo('(grep -v 127.0.1.1 /etc/hosts | grep -v "# auto"; echo "HOST # auto") > /etc/hosts.template')
+    #put('files/update-hosts.sh', '/etc/network/if-up.d/update-hosts.sh', mode=0o0755, use_sudo=True)
     
     # Java
     if not exists('/usr/bin/java'):
-        sudo('apt-get -y install openjdk-8-jre')
-
+        sudo('apt-get -y install oracle-java8-jdk')
 
 
 ssh_keys_cache = None
@@ -210,6 +209,7 @@ def collect_ssh_keys():
 
     ssh_keys_cache = '\n'.join(ssh_keys)
     return ssh_keys_cache + '\n'
+
 
 @task
 def ssh_keyscan():
