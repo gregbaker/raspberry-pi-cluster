@@ -260,7 +260,7 @@ def install_hadoop():
     sudo('mkdir -p /hadoop/datanode && chown hadoop:hadoop /hadoop/datanode')
 
 @task
-@hosts('master.local')
+@parallel
 def install_spark():
     """
     Install Spark on the master node
@@ -273,8 +273,9 @@ def install_spark():
         sudo(cmd('chown -R hadoop.hadoop %s', SPARK_INSTALL))
 
     sudo(cmd('ln -sf %s /opt/spark', SPARK_INSTALL))
-    put('files/spark-defaults.conf', '%s/conf/spark-defaults.conf' % (SPARK_INSTALL,), use_sudo=True)
+    upload_template('files/spark-defaults.conf', '%s/conf/spark-defaults.conf' % (SPARK_INSTALL,), context={'spark_install': SPARK_INSTALL}, use_sudo=True)
 
+    
 @task
 @hosts('master.local')
 def course_prep():
